@@ -34,12 +34,18 @@ class Formura1Slide(Scene):
 
 class Formura2Slide(Scene):
     XDASH = r"x' = a_1 x + a_2 t"
-    TDASH = r"t' = a_3 x + a_4 t"
+    TDASH = ["t'", "=", "a_3 x", "+", "a_4 t"]
     XDASH_1 = r"x' = A x - Av t"
     XDASH_2 = r"x' = A (x - vt)"
-    SPHERE_EQ = r"x^2 + y^2 + z^2 = (ct)^2"
-    SPHERE_EQ_DASH = r"x'^2 + y'^2 + z'^2 = (ct')^2"
-    TDASH_1 = r"t' = B x + D t"
+    SPHERE_EQ = ["x^2", "+", "y^2", "+", "z^2", "=", "(ct)^2"]
+    SPHERE_EQ_DASH = ["x'^2", "+", "y'^2", "+", "z'^2", "=", "(ct')^2"]
+    SPHERE_EQ_DASH2 = ["\{A(x - vt)\}^2", "+", "y'^2", "+", "z'^2", "=", "\{c (Bx + Dt)\}^2"]
+    SPHERE_EQ_DASH3 = ["\{A(x - vt)\}^2", "+", "y^2", "+", "z^2", "=", "\{c (Bx + Dt)\}^2"]
+    SPHERE_EQ_DASH4 = [
+        "(A^2 - c^2 B^2) x^2 + y^2 + z^2  \\",
+        "= (c^2 D^2 - v^2 A^2) t^2 + (2vA^2 + 2c^2 BD) xt"
+    ]
+    TDASH_1 = ["t'", "=", "B x", "+", "D t"]
     
 
     CONST_LIGHT = r"Principle of constancy of light velocity"
@@ -52,16 +58,11 @@ class Formura2Slide(Scene):
         xdash.next_to(formula_cursor, DOWN)
         self.add(xdash)
 
-        tdash = MathTex(self.TDASH)
+        tdash = MathTex(*self.TDASH)
         tdash.next_to(xdash, DOWN)
         self.add(tdash)
-        
         self.wait(1)
         
-        # xdash1 = MathTex(self.XDASH_1)
-        # xdash1.move_to(xdash.get_center())
-        # self.play(ReplacementTransform(xdash, xdash1))
-        # self.wait(1)
 
         xdash2 = MathTex(self.XDASH_2)
         xdash2.move_to(xdash.get_center())
@@ -69,7 +70,7 @@ class Formura2Slide(Scene):
         self.wait(1)
         
 
-        tdash_1 = MathTex(self.TDASH_1)
+        tdash_1 = MathTex(*self.TDASH_1)
         tdash_1.move_to(tdash.get_center())
         self.play(ReplacementTransform(tdash, tdash_1))
         self.wait(1)
@@ -77,9 +78,9 @@ class Formura2Slide(Scene):
         
         princ_const_text = Text(self.CONST_LIGHT, font_size=24)
         princ_const_text.move_to(ORIGIN)
-        sp = MathTex(self.SPHERE_EQ)
+        sp = MathTex(*self.SPHERE_EQ)
         sp.next_to(princ_const_text, DOWN)
-        spdash = MathTex(self.SPHERE_EQ_DASH)
+        spdash = MathTex(*self.SPHERE_EQ_DASH)
         spdash.next_to(sp, DOWN)
         self.play(AnimationGroup(
             Write(princ_const_text),
@@ -93,15 +94,72 @@ class Formura2Slide(Scene):
             AnimationGroup(
                 FadeOut(sp),
                 FadeOut(princ_const_text),
-                spdash.animate.next_to(tdash_1, DOWN),
+                spdash.animate.move_to(ORIGIN),
             )
         )
         self.wait(1)
+        
 
-        self.play(
-            TransformMatchingTex(spdash.copy(), xdash2)
+        spdash2 = MathTex(*self.SPHERE_EQ_DASH2)
+        arrow_x = Arrow(
+            start=xdash2.get_left(),
+            end=spdash.get_left(),
+            buff=0.6,
+            stroke_width=1,
+        )
+        arrow_t = Arrow(
+            start=tdash_1.get_left(),
+            end=spdash.get_right(),
+            buff=0.6,
+            stroke_width=1,
         )
         
+        self.play(
+            AnimationGroup(
+                GrowArrow(arrow_x),
+                GrowArrow(arrow_t),
+            )
+        )
+        self.play(
+                TransformMatchingTex(
+                    spdash,
+                    spdash2,
+                ),
+        )
+        self.wait(1)
+
+        spdash3 = MathTex(*self.SPHERE_EQ_DASH3)
+        self.play(
+                TransformMatchingTex(
+                    spdash2,
+                    spdash3,
+                ),
+        )
+        self.wait(1)
+        
+
+        spdash4 = MathTex(*self.SPHERE_EQ_DASH4, font_size=24)
+        self.play(
+            ReplacementTransform(
+                spdash3,
+                spdash4,
+            )
+        )
+        self.wait(1)
+        
+
+class LightSpreadScene(Scene):
+    def construct(self):
+        
+        for i in range(3):
+            sphere = Sphere(radius=0.2, fill_opacity=0.1)
+            self.add(sphere)
+            self.play(
+                sphere.animate.scale(6),
+                run_time=0.5
+            )
+            self.play(FadeOut(sphere))
+        self.wait()
 
         
 
