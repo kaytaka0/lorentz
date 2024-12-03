@@ -37,6 +37,7 @@ class Formura2Slide(Scene):
     TDASH = ["t'", "=", "a_3 x", "+", "a_4 t"]
     XDASH_1 = r"x' = A x - Av t"
     XDASH_2 = r"x' = A (x - vt)"
+<<<<<<< HEAD
     SPHERE_EQ = ["x^2", "+", "y^2", "+", "z^2", "=", "(ct)^2"]
     SPHERE_EQ_DASH = ["x'^2", "+", "y'^2", "+", "z'^2", "=", "(ct')^2"]
     SPHERE_EQ_DASH2 = ["\{A(x - vt)\}^2", "+", "y'^2", "+", "z'^2", "=", "\{c (Bx + Dt)\}^2"]
@@ -46,6 +47,13 @@ class Formura2Slide(Scene):
         "= (c^2 D^2 - v^2 A^2) t^2 + (2vA^2 + 2c^2 BD) xt"
     ]
     TDASH_1 = ["t'", "=", "B x", "+", "D t"]
+=======
+    SPHERE_EQ = r"x^2 + y^2 + z^2 = (ct)^2"
+    SPHERE_EQ_DASH = r"x'^2 + y'^2 + z'^2 = (ct')^2"
+    TDASH_1 = r"t' = B x + D t"
+
+    SPHERE_EQ_DASH2 = r"A^2 (x - vt)^2 + y^2 + z^2 = c^2 (Bx + Dt)^2"
+>>>>>>> origin/main
     
 
     CONST_LIGHT = r"Principle of constancy of light velocity"
@@ -63,7 +71,10 @@ class Formura2Slide(Scene):
         self.add(tdash)
         self.wait(1)
         
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
         xdash2 = MathTex(self.XDASH_2)
         xdash2.move_to(xdash.get_center())
         self.play(ReplacementTransform(xdash, xdash2))
@@ -100,18 +111,13 @@ class Formura2Slide(Scene):
         self.wait(1)
         
 
-        spdash2 = MathTex(*self.SPHERE_EQ_DASH2)
-        arrow_x = Arrow(
-            start=xdash2.get_left(),
-            end=spdash.get_left(),
-            buff=0.6,
-            stroke_width=1,
-        )
-        arrow_t = Arrow(
-            start=tdash_1.get_left(),
-            end=spdash.get_right(),
-            buff=0.6,
-            stroke_width=1,
+        self.play(AnimationGroup(
+            TransformMatchingTex(xdash2.copy(), spdash),
+            TransformMatchingTex(tdash_1.copy(), spdash),
+        ))
+        spdash2 = MathTex(self.SPHERE_EQ_DASH2)
+        self.play(
+            ReplacementTransform(spdash, spdash2)
         )
         
         self.play(
@@ -187,15 +193,23 @@ class RocketAndHumanScene(Scene):
         self.wait(1)
 
         # Draw and animate a rocket
+        rocket_half = [
+            [-2, 0, 0],
+            [-2, 1.5, 0],
+            [-1, 1, 0],
+            [3, 1, 0],
+            [4, 0, 0],
+        ]
+        mirror_rockert_half = [[point[0], -point[1], point[2]] for point in reversed(rocket_half)]
+
         rocket = Polygon(
-            [0, 1, 0],
-            [0.8, 0, 0],
-            [0, -1, 0],
+            *rocket_half,
+            *mirror_rockert_half,
             color=WHITE,
             fill_opacity=1
         )
+        rocket.scale(0.3)
         rocket.next_to(nm_line.n2p(self.ROCKET_START_POS), UP)  
-        rocket.scale(0.5)
         
         self.play(FadeIn(rocket)) 
         self.play(rocket.animate.next_to(nm_line.n2p(self.ROCKET_STOP_POS), UP))
@@ -206,21 +220,47 @@ class RocketAndHumanScene(Scene):
             t = t_1 \\
             x = V t_1
             \end{aligned}
-        """).next_to(nm_line.n2p(self.ROCKET_STOP_POS), DOWN)
-        self.play(FadeIn(point_label))
-        
+        """).next_to(nm_line.n2p(self.ROCKET_STOP_POS), DOWN)        
         
         # Velocity allow
         vect_v = Arrow(
-            start=nm_line.n2p(self.ROCKET_START_POS),
-            end=nm_line.n2p(self.ROCKET_STOP_POS),
             color=RED,
             buff=0,
         )
+        vect_v.next_to(rocket, UP)
         vect_v_label = MathTex(r"V").next_to(vect_v, UP)
-        self.play(GrowArrow(vect_v))
-        self.play(FadeIn(vect_v_label))
+        self.play(AnimationGroup(
+                GrowArrow(vect_v),
+                FadeIn(vect_v_label),
+                FadeIn(point_label),
+         ))
         self.wait(1)
+
+
+        human_half = [
+            [0, 0, 0],
+            [0.1, 0, 0], 
+            [0.1, -2, 0], # foot
+            [0.5, -2, 0], # foot
+            [0.5, 0.2, 0],
+            [0.7, 0.2, 0],
+            [0.7, 0, 0],
+            [1, 0, 0],
+            [1, 2, 0],
+            [0.5, 2, 0], # head
+            [0.5, 2.8, 0], # head
+            [0, 2.8, 0], # head
+        ]
+        mirror_human_half = [[-point[0], point[1], point[2]] for point in reversed(human_half)]
+
+        human = Polygon(
+            *human_half,
+            *mirror_human_half,
+            fill_opacity=1
+        )
+        human.scale(0.2)
+        human.next_to(nm_line.n2p(self.ROCKET_START_POS), UP)
+        self.play(Write(human))
     
 
 
