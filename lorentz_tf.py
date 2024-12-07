@@ -41,6 +41,22 @@ class Formura2Slide(Scene):
     SPHERE_EQ_DASH = r"x'^2 + y'^2 + z'^2 = (ct')^2"
     TDASH_1 = r"t' = B x + D t"
     SPHERE_EQ_DASH2 = r"A^2 (x - vt)^2 + y^2 + z^2 = c^2 (Bx + Dt)^2"
+    SPHERE_EQ_DASH3 = [
+        "(A^2 - c^2 B^2)", "x^2", 
+        "+", "y^2", "+", "z^2",
+        "=",
+        "(c^2 D^2 - v^2 A^2)", "t^2",
+        "+", "(2vA^2 + 2c^2BD)", "xt",
+    ]
+    SPHERE_EQ_DASH3_COEFF_X_INDEX = 0
+    SPHERE_EQ_DASH3_COEFF_T_INDEX = 7
+    SPHERE_EQ_DASH3_COEFF_XT_INDEX = 10
+    SIM_EQ = r"""
+    A^2 - c^2 B^2 = 1 \\
+    c^2 D^2 - v^2 A^2 = c^2 \\
+    2vA^2 + 2c^2BD = 0
+    """
+    
     
 
     CONST_LIGHT = r"Principle of constancy of light velocity"
@@ -109,7 +125,42 @@ class Formura2Slide(Scene):
                     spdash2,
                 ),
         )
-        self.wait(1)
+        # self.wait(1)
+
+        FONT_SZ_SPD3 = 40
+        spdash3 = MathTex(*self.SPHERE_EQ_DASH3, font_size=FONT_SZ_SPD3)
+        self.play(
+            ReplacementTransform(spdash2, spdash3)
+        )
+        
+        # self.wait(1)
+
+        underline_x = Underline(spdash3[self.SPHERE_EQ_DASH3_COEFF_X_INDEX])
+        underline_t = Underline(spdash3[self.SPHERE_EQ_DASH3_COEFF_T_INDEX])
+        underline_xt = Underline(spdash3[self.SPHERE_EQ_DASH3_COEFF_XT_INDEX])
+        self.play(AnimationGroup(
+            Write(underline_x),
+            Write(underline_t),
+            Write(underline_xt),
+        ))
+
+        # Show original sphere equation (without dash symbol)
+        sp = MathTex(self.SPHERE_EQ).next_to(spdash3)
+        sp.move_to([0, -2, 0])
+        self.play(Write(sp))
+        
+        # font size is aligned with spdash3 equation
+        ul_label_x = Text("1", font_size=FONT_SZ_SPD3).next_to(underline_x, DOWN)
+        ul_label_t = MathTex("c^2", font_size=FONT_SZ_SPD3).next_to(underline_t, DOWN)
+        ul_label_xt = Text("0", font_size=FONT_SZ_SPD3).next_to(underline_xt, DOWN)
+        self.play(AnimationGroup(
+            Write(ul_label_x),
+            Write(ul_label_t),
+            Write(ul_label_xt),
+        ))
+        # self.wait(1)
+
+        sim_eq = MathTex(SIM_EQ)
 
         
 
